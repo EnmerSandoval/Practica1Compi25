@@ -1,0 +1,257 @@
+package com.compi1.practice1.parse;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+
+import com.compi1.practice1.errors.ErrorL;
+import com.compi1.practice1.strcuts.Instruction;
+import java.util.LinkedList;
+import com.compi1.practice1.strcuts.Occurence;
+import com.compi1.practice1.strcuts.Print;
+import com.compi1.practice1.symbol.Operators;
+import com.compi1.practice1.symbol.Type;
+import com.compi1.practice1.symbol.TypeData;
+import com.compi1.practice1.symbol.ValueAssign;
+
+import com.compi1.practice1.strcuts.ExecuteOperation;
+
+
+class Parser;
+
+parser code {:
+    public LinkedList<ErrorL> errors = new LinkedList<>();
+    public LinkedList<String> lista  = new LinkedList<>();
+    public LinkedList<Occurence> occurenceLinkedList = new LinkedList<>();
+    public LinkedList<String> messages = new LinkedList<>();
+
+    public LinkedList<ErrorL> getErrors(){
+        return this.errors;
+    }
+
+    public void addError(int line, int column, String message){
+        errors.add(new ErrorL(message, line, column, "Sintactico", message));
+    }
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        String message = "Error sintactico irrecuperable en la Linea " +
+        (s.left) + " Columna "+ s.right+ ". Componente " + s.value + " no reconocido.";
+        messages.add(message);
+    }
+
+    private String quitarComillas(String identificador){
+        return identificador.replace("\"", "");
+    }
+
+:}
+
+terminal HASH, IDHEADER, BOLD, BOLDITALIC, LISTORDEN, LISTORDERONE, LISTPLUS, PARAGRAPH, ID, EQUALS;
+terminal PLUS, MINUS, MULT, DIV, POW, LPAREN, RPAREN, PRINT, WORD, NUM, FORMAT, PLOT, COMMA, DOT, REPORTES, OPERADORES, ERRORES;
+
+non terminal Instruction ini, aritmetic;
+non terminal Instruction listOrder, listNotOrder, assignation, aritmeticOperation, expression;
+non terminal Instruction statement, header, text, lists, specialOperation;
+
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+precedence left POW;
+precedence left LPAREN, RPAREN;
+
+start with ini;
+
+ini::= statement:statement {: RESULT = statement;:}
+       | error:e
+       ;
+
+statement::= header:header
+            {:
+                int line = headerleft;
+                int column =  headerright;
+                RESULT = header;
+            :}
+            | text:text
+            {:
+                RESULT = text;
+            :}
+            | lists:lists
+            {:
+                RESULT = lists;
+            :}
+            | aritmetic:aritmetic
+            {:
+                RESULT = aritmetic;
+            :}
+            ;
+
+header::= HASH IDHEADER:idHeader
+          {:
+            int line = idHeaderleft + 1;
+            int column = idHeaderleft + 1;
+            String reformat = "<h1>" + idHeader + "</h1>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+            RESULT = valueAssign;
+          :}
+        | HASH HASH IDHEADER:idHeader
+           {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h2>" + idHeader + "</h2>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+           :}
+        | HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h3>" + idHeader + "</h3>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h4>" + idHeader + "</h4>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h5>" + idHeader + "</h5>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h6>" + idHeader + "</h6>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        ;
+
+text::= BOLD PARAGRAPH:para BOLD
+        {:
+           int line = paraleft + 1;
+           int column = paraleft + 1;
+           String reformat = "<b><i>" + para + "</i></b>";
+           ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+           RESULT = new Print(line, column, valueAssign);
+        :}
+        | MULT PARAGRAPH:para MULT
+          {:
+            int line = paraleft + 1;
+            int column = paraleft + 1;
+            String reformat = "<b><i>" + para + "</i></b>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+            RESULT = new Print(line, column, valueAssign);
+          :}
+        | BOLDITALIC PARAGRAPH:para BOLDITALIC
+           {:
+            int line = paraleft + 1;
+            int column = paraleft + 1;
+            String reformat = "<b><i>" + para + "</i></b>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+            RESULT = new Print(line, column, valueAssign);
+           :}
+        ;
+
+lists::= listOrder:listOrder
+        | listNotOrder:listNotOrder
+        ;
+
+listOrder::= LISTORDERONE ID:id
+            | LISTORDEN ID:id
+            ;
+
+listNotOrder::= LISTPLUS ID:id
+               ;
+
+aritmetic::= assignation:assignation
+             {:
+                RESULT = assignation;
+             :}
+           | aritmeticOperation:aritmeticOperation
+             {:
+                RESULT = aritmeticOperation;
+             :}
+           | specialOperation:specialOperation
+             {:
+                RESULT = specialOperation;
+             :}
+           ;
+
+assignation::= ID:id EQUALS expression:exp
+                {:
+                   // RESULT = new Assign();
+                :}
+            ;
+
+expression::= expression:exp1 PLUS expression:exp2
+              {:
+                int line = exp1left+1;
+                int column = exp1right+1;
+                RESULT = new ExecuteOperation(line, column, exp1, exp2, Operators.PLUS);
+              :}
+            | expression:exp1 MINUS expression:exp2
+              {:
+                int line = exp1left+1;
+                int column = exp1right+1;
+                RESULT = new ExecuteOperation(line, column, exp1, exp2, Operators.MINUS);
+              :}
+
+            | expression:exp1 MULT expression:exp2
+                {:
+                    int line = exp1left+1;
+                    int column = exp1right+1;
+                    RESULT = new ExecuteOperation(line, column, exp1, exp2, Operators.MULT);
+                :}
+            | expression:exp1 DIV expression:exp2
+                {:
+                    int line = exp1left+1;
+                    int column = exp1right+1;
+                    RESULT = new ExecuteOperation(line, column, exp1, exp2, Operators.DIV);
+                :}
+            | expression:exp1 POW expression:exp2
+                {:
+                    int line = exp1left+1;
+                    int column = exp1right+1;
+                    RESULT = new ExecuteOperation(line, column, exp1, exp2, Operators.POW);
+                :}
+            | LPAREN expression:exp RPAREN
+                {:
+                    RESULT = exp;
+                :}
+            | WORD:word
+                {:
+                    int line = wordleft+1;
+                    int column = wordright+1;
+                    RESULT = new ValueAssign(new Type(TypeData.STRING), line, column, word);
+                :}
+            ;
+
+specialOperation::= PRINT LPAREN expression:exp RPAREN
+                    {:
+                        int line = expleft + 1;
+                        int column = expleft + 1;
+                        RESULT = new Print(line, column, exp);
+                    :}
+                  | FORMAT LPAREN expression:exp RPAREN
+                    {:
+
+                    :}
+                  | PLOT LPAREN expression COMMA NUM COMMA NUM RPAREN
+                    {:
+
+                    :}
+                  | REPORTES DOT OPERADORES LPAREN RPAREN
+                    {:
+
+                    :}
+                  | REPORTES DOT ERRORES LPAREN RPAREN
+                    {:
+
+                    :}
+                  ;
