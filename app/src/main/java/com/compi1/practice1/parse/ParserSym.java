@@ -8,48 +8,35 @@ package com.compi1.practice1.parse;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int PLOT = 23;
-  public static final int PARAGRAPH = 9;
-  public static final int WORD = 20;
-  public static final int PLUS = 12;
-  public static final int RPAREN = 18;
-  public static final int LISTORDEN = 6;
-  public static final int POW = 16;
-  public static final int BOLDITALIC = 5;
-  public static final int IDHEADER = 3;
-  public static final int LPAREN = 17;
-  public static final int ID = 10;
-  public static final int HASH = 2;
-  public static final int NUM = 21;
-  public static final int EQUALS = 11;
-  public static final int OPERADORES = 27;
-  public static final int COMMA = 24;
+  public static final int PLOT = 4;
+  public static final int WORD = 15;
+  public static final int PLUS = 7;
+  public static final int RPAREN = 13;
+  public static final int POW = 11;
+  public static final int LPAREN = 12;
+  public static final int ID = 2;
+  public static final int NUM = 16;
+  public static final int EQUALS = 3;
+  public static final int OPERADORES = 6;
+  public static final int COMMA = 5;
   public static final int EOF = 0;
-  public static final int MULT = 14;
-  public static final int DIV = 15;
-  public static final int MINUS = 13;
-  public static final int DOT = 25;
-  public static final int PRINT = 19;
+  public static final int MULT = 9;
+  public static final int DIV = 10;
+  public static final int MINUS = 8;
+  public static final int DOT = 18;
+  public static final int PRINT = 14;
   public static final int error = 1;
-  public static final int LISTORDERONE = 7;
-  public static final int LISTPLUS = 8;
-  public static final int REPORTES = 26;
-  public static final int FORMAT = 22;
-  public static final int ERRORES = 28;
-  public static final int BOLD = 4;
+  public static final int REPORTES = 19;
+  public static final int FORMAT = 17;
+  public static final int ERRORES = 20;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
-  "HASH",
-  "IDHEADER",
-  "BOLD",
-  "BOLDITALIC",
-  "LISTORDEN",
-  "LISTORDERONE",
-  "LISTPLUS",
-  "PARAGRAPH",
   "ID",
   "EQUALS",
+  "PLOT",
+  "COMMA",
+  "OPERADORES",
   "PLUS",
   "MINUS",
   "MULT",
@@ -61,11 +48,8 @@ public class ParserSym {
   "WORD",
   "NUM",
   "FORMAT",
-  "PLOT",
-  "COMMA",
   "DOT",
   "REPORTES",
-  "OPERADORES",
   "ERRORES"
   };
 }

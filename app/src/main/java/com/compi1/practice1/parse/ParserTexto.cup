@@ -1,0 +1,185 @@
+package com.compi1.practice1.parse;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import com.compi1.practice1.errors.ErrorL;
+import com.compi1.practice1.strcuts.Instruction;
+import java.util.LinkedList;
+import com.compi1.practice1.strcuts.Occurence;
+import com.compi1.practice1.strcuts.Print;
+import com.compi1.practice1.symbol.Operators;
+import com.compi1.practice1.symbol.Type;
+import com.compi1.practice1.symbol.TypeData;
+import com.compi1.practice1.symbol.ValueAssign;
+
+class ParserCodigo;
+
+parser code {:
+    public LinkedList<ErrorL> errors = new LinkedList<>();
+    public LinkedList<String> lista = new LinkedList<>();
+    public LinkedList<Occurence> ocurrenceList = new LinkedList<>();
+    public LinkedList<String> messages = new LinkedList<>();
+
+    public LinkedList<ErrorL> getErrors(){
+        return this.errors;
+    }
+
+    public void addError(int line, int column, String message){
+        errors.add(new ErrorL(message, line, column, "Sintactico", message));
+    }
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        String message = "Error sintactico irrecuperable en la Linea " +
+        (s.left) + " Columna "+ s.right+ ". Componente " + s.value + " no reconocido.";
+        messages.add(message);
+    }
+
+    private String quitarComillas(String identificador){
+        return identificador.replace("\"", "");
+    }
+
+:}
+
+terminal HASH, IDHEADER, BOLD, BOLDITALIC, LISTORDEN, LISTORDERONE, LISTPLUS, PARAGRAPH, LPAREN, RPAREN;
+terminal PRINT, WORD,  MULT, ID;
+
+non terminal LinkedList<Instruction> ini, statements;
+non terminal Instruction listOrder, listNotOrder, statement, header, text, lists, specialOperation;
+
+start with ini;
+
+ini::= statements:statement
+        {:
+            RESULT = statement;
+        :}
+       ;
+
+statements::= statements:statements statement:statement
+              {:
+                RESULT = statements;
+                RESULT.add(statement);
+              :}
+            | statement:statement
+               {:
+                RESULT = new LinkedList<>();
+                RESULT.add(statement);
+               :}
+            | error:error
+              {:
+                 errors.add(new ErrorL(error.toString(), errorleft, errorright, "SINTACTICO", "NO SE ESPERABA ESTE CARACTER"));
+              :}
+            ;
+
+statement::= header:header
+              {:
+                RESULT = header;
+              :}
+            | text:text
+              {:
+                RESULT = text;
+              :}
+            | lists:lists
+              {:
+                RESULT = lists;
+              :}
+            | specialOperation:special
+              {:
+                RESULT = special;
+              :}
+            ;
+
+header::= HASH IDHEADER:idHeader
+          {:
+            int line = idHeaderleft + 1;
+            int column = idHeaderleft + 1;
+            String reformat = "<h1>" + idHeader + "</h1>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+            RESULT = valueAssign;
+          :}
+        | HASH HASH IDHEADER:idHeader
+           {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h2>" + idHeader + "</h2>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+           :}
+        | HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h3>" + idHeader + "</h3>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h4>" + idHeader + "</h4>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h5>" + idHeader + "</h5>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        | HASH HASH HASH HASH HASH HASH IDHEADER:idHeader
+            {:
+                int line = idHeaderleft + 1;
+                int column = idHeaderleft + 1;
+                String reformat = "<h6>" + idHeader + "</h6>";
+                ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, idHeader);
+                RESULT = valueAssign;
+            :}
+        ;
+
+text::= BOLD PARAGRAPH:para BOLD
+        {:
+           int line = paraleft + 1;
+           int column = paraleft + 1;
+           String reformat = "<b><i>" + para + "</i></b>";
+           ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+           RESULT = new Print(line, column, valueAssign);
+        :}
+        | MULT PARAGRAPH:para MULT
+          {:
+            int line = paraleft + 1;
+            int column = paraleft + 1;
+            String reformat = "<b><i>" + para + "</i></b>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+            RESULT = new Print(line, column, valueAssign);
+          :}
+        | BOLDITALIC PARAGRAPH:para BOLDITALIC
+           {:
+            int line = paraleft + 1;
+            int column = paraleft + 1;
+            String reformat = "<b><i>" + para + "</i></b>";
+            ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, para);
+            RESULT = new Print(line, column, valueAssign);
+           :}
+        ;
+
+lists::= listOrder:listOrder
+        | listNotOrder:listNotOrder
+        ;
+
+listOrder::= LISTORDERONE ID:id
+            | LISTORDEN ID:id
+            ;
+
+listNotOrder::= LISTPLUS ID:id
+               ;
+
+specialOperation::= PRINT LPAREN WORD:word RPAREN
+                    {:
+                        int line = wordleft + 1;
+                        int column = wordleft + 1;
+                        ValueAssign valueAssign = new ValueAssign(new Type(TypeData.STRING), line, column, word);
+                        RESULT = valueAssign;
+                    :}
+                  ;

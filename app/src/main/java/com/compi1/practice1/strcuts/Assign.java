@@ -12,8 +12,8 @@ public class Assign extends Instruction{
     private String id;
     private Instruction exp;
 
-    public Assign(Type type, String id, Instruction exp, int line, int column){
-        super(type, line, column);
+    public Assign(String id, Instruction exp, int line, int column){
+        super(new Type(TypeData.VOID), line, column);
         this.id = id;
         this.exp = exp;
     }

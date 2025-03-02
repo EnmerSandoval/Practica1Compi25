@@ -68,6 +68,9 @@ public class Tree {
         this.console += valueConsole + "\n";
     }
 
+    public void addStruct(Instruction instruction){
+        this.instructions.add(instruction);
+    }
 
 
 }

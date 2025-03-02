@@ -1,8 +1,10 @@
 package com.compi1.practice1.lexer;
 
-import java.text.ParseException;import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java_cup.runtime.Symbol;
-import com.compi1.practice1.errors;import com.compi1.practice1.parse.ParserSym;
+import com.compi1.practice1.parse.ParserSym;
+import com.compi1.practice1.errors.ErrorL;
 
 %%
 
@@ -17,24 +19,13 @@ import com.compi1.practice1.errors;import com.compi1.practice1.parse.ParserSym;
 %init}
 
 //REGEX
-WHITESP         = ([\s\t\r]+)
 WHITESPCS       = ([\s\t\r\n]+)
 NUM             = (-)?[0-9]+(\.[0-9]+)?
 ID              = [a-zA-Z_][}a-zA-Z0-9_]*
-IDHEADER        = [a-zA-Z_][a-zA-Z_]*(({WHITESP})([0-9]+))?
-LISTORDERONE    = [1]"."
-LISTORDER       = [0-9]+"."
-LISTPLUS        = "+" ({WHITESP}) ({ID})
 WORD            = (\"([^\"]|[a-zA-Z]|(\s)|[0-9])+\")
-PARAGRAPH       = [^ \t\n].*
 
-//HEADERS
-HASH        = "#"
-BOLD        = "**"
-BOLDITALIC  = "***"
-COMMA       = ","
-DOT         = "."
 //Symbols
+DOT         = "."
 EQUALS      = "="
 PLUS        = "+"
 MINUS       = "-"
@@ -74,19 +65,9 @@ OPERADORES  = "operadores"
 
 %%
 
-{IDHEADER}       {return new Symbol(ParserSym.IDHEADER, yycolumn, yyline, yytext());}
-{HASH}           {return new Symbol(ParserSym.HASH, yycolumn, yyline, yytext());}
-{BOLDITALIC}     {return new Symbol(ParserSym.BOLDITALIC, yycolumn, yyline, yytext());}
-{COMMA}          {return new Symbol(ParserSym.COMMA, yycolumn, yyline, yytext());}
-{ID}             {return new Symbol(ParserSym.ID, yycolumn, yyline, yytext());}
-{BOLD}           {return new Symbol(ParserSym.BOLD, yycolumn, yyline, yytext());}
-{LISTORDERONE}   {return new Symbol(ParserSym.LISTORDERONE, yyline, yycolumn, yytext());}
-{LISTPLUS}       {return new Symbol(ParserSym.LISTPLUS, yycolumn, yyline, yytext());}
-{PARAGRAPH}      {return new Symbol(ParserSym.PARAGRAPH, yycolumn, yyline, yytext());}
 {EQUALS}         {return new Symbol(ParserSym.EQUALS, yycolumn, yyline, yytext());}
 {PLUS}           {return new Symbol(ParserSym.PLUS, yycolumn, yyline, yytext());}
 {MINUS}          {return new Symbol(ParserSym.MINUS, yycolumn, yyline, yytext());}
-{LISTORDER}      {return new Symbol(ParserSym.LISTORDER, yycolumn, yyline, yytext());}
 {MULT}           {return new Symbol(ParserSym.MULT, yycolumn, yyline, yytext());}
 {DIV}            {return new Symbol(ParserSym.DIV, yycolumn, yyline, yytext());}
 {POW}            {return new Symbol(ParserSym.POW, yycolumn, yyline, yytext());}
@@ -96,9 +77,13 @@ OPERADORES  = "operadores"
 {FORMAT}         {return new Symbol(ParserSym.FORMAT, yycolumn, yyline, yytext());}
 {PLOT}           {return new Symbol(ParserSym.PLOT, yycolumn, yyline, yytext());}
 {OPERADORES}     {return new Symbol(ParserSym.OPERADORES, yycolumn, yyline, yytext());}
-{REPORTES}       {return new Symbol(ParserSym.REPORTES)}
+{REPORTES}       {return new Symbol(ParserSym.REPORTES, yycolumn, yyline, yytext());}
+{NUM}            {return new Symbol(ParserSym.NUM, yycolumn, yyline, yytext());}
+{DOT}            {return new Symbol(ParserSym.DOT, yycolumn, yyline, yytext());}
+{ERRORES}        {return new Symbol(ParserSym.ERRORES, yycolumn, yyline, yytext());}
+{ID}             {return new Symbol(ParserSym.ID, yycolumn, yyline, yytext());}
+{WORD}           {return new Symbol(ParserSym.WORD, yycolumn, yyline, yytext());}
 
 
-{WHITESPCS}      {/*  */]
-
-[^]             {/*de momento no hace nada*/}
+{WHITESPCS}      {/*  */}
+[^]              {errors.add(new ErrorL(yytext(), yyline, yycolumn, "LEXICO", "CARACTER NO RECONOCIDO"));}

@@ -35,7 +35,7 @@ public class ExecuteOperation extends Instruction{
     public Object interpretar(Tree tree, SymbolTable tableSymbol) {
         Object izquierda = null, derecha = null, only = null;
         if(this.unique != null){
-            only = this.unique.interpretar(tree, tableSymbol);
+            return this.unique.interpretar(tree, tableSymbol);
         } else {
             izquierda = this.op1.interpretar(tree, tableSymbol);
             if(izquierda instanceof ErrorL){
